@@ -1,0 +1,12 @@
+🧠 整体流程图解：
+bash
+Copy
+Edit
+你运行：
+→ echo "123" > /data/a.txt
+
+Linux 实际做了这些：
+
+1️⃣ 写入 VFS 虚拟文件系统  
+2️⃣ 写入 Page Cache（内存中的缓冲） ✅
+3️⃣ 后台延迟刷新（flush）到挂载磁盘 vdb1
