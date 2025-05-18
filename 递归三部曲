@@ -77,3 +77,36 @@ if (!left && !right) return true;
 if (left->val != right->val) return false;  // ✅ 现在才安全
 📌 小口诀帮助你记：
 “先判空，再比值；不判空，炸程序！”
+
+
+
+
+
+
+注意这些个，进行init的时候的覆盖问题了：
+
+“
+✅ 错误核心：
+你在这行里写了一个局部变量，而不是用你上面声明的 result：
+
+int result = max(depth, result); // ❌ 错误！这是局部变量 result
+📌 你以为在更新全局 result，但实际上你是：
+声明了一个新的 int result（局部）
+
+然后它立刻被丢弃
+
+全局的 result 根本没被更新！
+
+✅ 正确做法：不要重新声明 int result
+你应该直接写：
+
+result = max(depth, result);  // ✅ 修改类的成员变量 result
+❗附加问题：
+还有一点需要注意：
+
+int result = 0;
+int depth = 1;
+你在 maxDepth() 函数内部又定义了一个局部 result，这也会覆盖类成员变量。
+
+所以你实际 return 的也是局部变量！
+”
