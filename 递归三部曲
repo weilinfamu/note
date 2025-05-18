@@ -28,3 +28,52 @@ public:
 };
 
 注意，递归是完全注重筛选的，因此，俩return ... 最后一个是回溯最后在栈中return的起点，逐步上层，之后都是在判断这些：
+
+常见错误：你遇到的这个报错是非常典型的递归判断错误：
+
+❌ 报错解释（看图中这句）：
+cpp
+Copy
+Edit
+if(left->val != right->val) return false;
+报错信息：
+
+txt
+Copy
+Edit
+runtime error: member access within null pointer of type 'TreeNode'
+✅ 错误原因：
+你在 未判断指针是否为 nullptr 的前提下，直接访问了：
+
+cpp
+Copy
+Edit
+left->val 或 right->val
+🔥 举例触发错误的情形：
+比如你递归到了这样一对：
+
+cpp
+Copy
+Edit
+left = nullptr
+right = TreeNode(3)
+你直接去访问 left->val，结果就是 空指针解引用 → 程序崩溃！
+
+✅ 正确顺序：必须先判断 null，再访问 val
+你的顺序现在是：
+
+cpp
+Copy
+Edit
+if(left->val != right->val) return false;  ❌
+正确顺序应该是：
+
+cpp
+Copy
+Edit
+if (!left && right) return false;
+if (left && !right) return false;
+if (!left && !right) return true;
+if (left->val != right->val) return false;  // ✅ 现在才安全
+📌 小口诀帮助你记：
+“先判空，再比值；不判空，炸程序！”
