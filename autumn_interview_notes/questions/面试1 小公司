@@ -1,0 +1,38 @@
+1：面试1：
+Linux Socket 项目
+Question：做过 socket 编程吗？
+
+Your Answer：
+
+做过一个域名查询项目，递归查找 Host -> 上层 -> 权威服务器，最后返回。
+
+Ideal Answer：
+
+用 C 编写过 DNS 查询工具，模拟了本地缓存、本地host查找、递归向上层服务器请求直到权威 DNS，涉及 socket 编程、UDP/TCP 通信、错误处理等模块。
+
+
+
+2: 线程通信：epoll / select
+Question：讲讲 epoll 的机制，底层是怎么实现的？
+
+Your Answer：
+
+epoll 用红黑树跟踪 fd，事件触发后从内核态队列获取，效率比 select 高。select 每次复制位图比较耗性能。
+
+Ideal Answer：
+
+epoll 用红黑树管理注册的 fd，触发事件后放入就绪队列，epoll_wait 在内核态阻塞监听，高效支持大规模 fd 管理。而 select/poll 每次都复制全部 fd 集合，性能差于 epoll。
+
+
+3. 线程与通信
+Question：线程函数怎么传参数？怎么处理线程的阻塞/分离？
+
+Your Answer：
+
+用结构体传参，用 pthread_create 创建，pthread_detach 分离线程，pthread_join 等待主线程。
+
+Ideal Answer：
+
+使用 pthread_create 创建线程，传参采用结构体封装（避免指针强转问题），若线程无需回收用 pthread_detach 分离，若需等待结果则使用 pthread_join。主线程避免提前退出，需合理设计阻塞机制。
+
+4：
