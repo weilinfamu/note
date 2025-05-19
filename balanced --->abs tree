@@ -1,0 +1,111 @@
+ balanced --->abs tree
+
+
+class Solution {
+public:
+    // 返回以该节点为根节点的二叉树的高度，如果不是平衡二叉树了则返回-1
+    int getHeight(TreeNode* node) {
+        if (node == NULL) {
+            return 0;
+        }
+        int leftHeight = getHeight(node->left);
+        if (leftHeight == -1) return -1;
+        int rightHeight = getHeight(node->right);
+        if (rightHeight == -1) return -1;
+        
+        return abs(leftHeight - rightHeight) > 1 ? -1 : 1 + max(leftHeight, rightHeight);
+    }
+    
+    bool isBalanced(TreeNode* root) {
+        return getHeight(root) == -1 ? false : true;
+    }
+};
+
+递归 回溯 图：
+        A
+       / \
+      B   C
+     /
+    D
+
+
+. 递归到底层（先递到最左边）：
+getHeight(A)
+
+getHeight(B)
+
+getHeight(D)
+
+getHeight(NULL) // D左
+
+返回0
+
+getHeight(NULL) // D右
+
+返回0
+
+回到D节点
+
+leftHeight = 0
+
+rightHeight = 0
+
+abs(0 - 0) = 0 <= 1，D是平衡的
+
+返回1 + max(0,0) = 1
+
+getHeight(NULL) // B右
+
+返回0
+
+回到B节点
+
+leftHeight = 1（D的返回）
+
+rightHeight = 0
+
+abs(1 - 0) = 1 <= 1，B是平衡的
+
+返回1 + max(1,0) = 2
+
+getHeight(C)
+
+getHeight(NULL) // C左
+
+返回0
+
+getHeight(NULL) // C右
+
+返回0
+
+回到C节点
+
+leftHeight = 0
+
+rightHeight = 0
+
+abs(0-0) = 0 <= 1，C是平衡的
+
+返回1 + max(0,0) = 1
+
+回到A节点
+
+leftHeight = 2（B的返回）
+
+rightHeight = 1（C的返回）
+
+abs(2-1) = 1 <= 1，A是平衡的
+
+返回1 + max(2,1) = 3
+
+图示（递归栈/回溯阶段）：
+每一步就像函数栈那样入栈出栈：
+
+mathematica
+Copy
+Edit
+| getHeight(D)   |    // 叶子结点，返回 1
+| getHeight(B)   |    // D->1，NULL->0，所以B返回 2
+| getHeight(C)   |    // NULL->0，NULL->0，C返回 1
+| getHeight(A)   |    // B->2，C->1，A返回 3
+
