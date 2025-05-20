@@ -1,0 +1,14 @@
+一、删除的拷贝赋值运算符
+cppauto operator=(const MoveBlocked &) -> MoveBlocked & = delete;
+语法分析：
+
+auto ... -> MoveBlocked &：C++11引入的尾置返回类型语法，表示返回类型是MoveBlocked&
+operator=：重载赋值运算符
+(const MoveBlocked &)：参数是常量引用，表示要进行拷贝赋值
+= delete：删除此函数，明确告诉编译器不允许使用此函数
+
+逻辑含义：
+
+禁止使用拷贝赋值运算符，即不能进行obj1 = obj2这样的操作
+如果代码中尝试这样做，编译器会报错
+这是为了强制只能使用移动语义，而不能复制
