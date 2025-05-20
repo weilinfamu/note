@@ -24,8 +24,41 @@
 消息在“队列”里排队 → B 慢慢拿
 
 ---------------------------------------------------------
+线程间通信	std::queue + mutex + cond_var
+进程间通信	System V 消息队列、POSIX MQ、ZeroMQ
+分布式系统	Kafka、RabbitMQ、Redis Streams
+GUI 事件	Qt 的 QEventQueue，Windows 的 MessageLoop
+日志队列	后台线程写日志，主线程继续跑
+--------------------------------------------------
+✅ 举例：C++ 中用标准容器 + 同步机制实现消息队列
 
+std::queue<std::string> msgQueue;
+std::mutex mtx;
+std::condition_variable cv;
 
+// 生产者线程：发消息
+{
+  std::lock_guard<std::mutex> lock(mtx);
+  msgQueue.push("你好");
+  cv.notify_one();
+}
+
+// 消费者线程：等消息
+{
+  std::unique_lock<std::mutex> lock(mtx);
+  cv.wait(lock, [] { return !msgQueue.empty(); });
+  std::string msg = msgQueue.front(); msgQueue.pop();
+}
+
+-----------------------------------------------------------------
+✅ 所以 std::promise/std::future 就是“最简化的一次性消息队列”
+特点	对应行为
+写一条消息	promise.set_value(x)
+读一条消息	future.get()
+一次性通道	消息发一次就完
+---------------------------------
+消息队列就是一个跨线程/进程的“有序、异步、安全的传递数据的通道”，
+就像快递传送带、传菜口、顾客排队一样，前面发的消息先被处理，发收解耦、线程安全。
 
 
 
