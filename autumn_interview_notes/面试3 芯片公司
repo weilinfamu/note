@@ -1,0 +1,22 @@
+1:栈溢出是怎么一个方式呢？
+栈溢出是指程序执行过程中，函数调用的栈帧超过了系统给进程分配的栈空间，导致程序崩溃或者异常。
+
+触发方式---->通常是：
+通常是由于无限递归，或者递归深度过大，没有及时返回，导致调用的栈不断增大，超过了栈空间的系统capacity。
+int stackOverflow(int x){
+ stackOverflow(x+1);
+}
+int main(){
+stackOverflow(0);
+return 0;
+}
+面试技巧：展示理解
+每个线程的栈大小通常是有限的（比如 Linux 默认 8MB），递归层数太深（上千或几万）就可能栈溢出。
+
+int safeRecursion(int x){
+if(x > 10000)return x;
+return safeRecursion(x+1);
+}
+✅ 如果语言支持尾递归优化（Tail Recursion Optimization）
+说明有些语言或编译器会优化尾递归（如 Scala、部分 C++ 编译器等），可以减少栈帧增长，但 C++ 通常不做 TCO（Tail Call Optimization），仍需手动改成迭代。
+
