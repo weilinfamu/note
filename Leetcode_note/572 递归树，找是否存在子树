@@ -1,0 +1,76 @@
+以下是写的一些我不太会的（认为难得）算法：
+1：
+572. 另一棵树的子树
+已解答
+简单
+相关标签
+相关企业
+提示
+给你两棵二叉树 root 和 subRoot 。检验 root 中是否包含和 subRoot 具有相同结构和节点值的子树。如果存在，返回 true ；否则，返回 false 。
+
+二叉树 tree 的一棵子树包括 tree 的某个节点和这个节点的所有后代节点。tree 也可以看做它自身的一棵子树。
+
+ 
+
+示例 1：
+
+
+输入：root = [3,4,5,1,2], subRoot = [4,1,2]
+输出：true
+示例 2：
+
+
+输入：root = [3,4,5,1,2,null,null,null,null,0], subRoot = [4,1,2]
+输出：false
+ 
+
+提示：
+
+root 树上的节点数量范围是 [1, 2000]
+subRoot 树上的节点数量范围是 [1, 1000]
+-104 <= root.val <= 104
+-104 <= subRoot.val <= 104
+
+
+572 这道题呢，是递归，因为习惯用迭代，所以会对这种绝对递归吃亏，
+
+这道题一开始碰到了，啥想法也没有。
+目前得思路就是，分成俩func 来进行递归，第一个func呢，我们掌握starting point, 由于只要求我们返回 bool就行了，所以说呢，还是很好做得，不用实在得 进行赋值，然后返回了，
+
+首先用第一个func,检查我们得 root 还有subroot 是否为 nullptr,任意得一个null 都不行，但是实际上，不用看，因为提示了至少是 1.
+其次，我们把小树当作固定的树，大树来进行一个 递归就行，每次都是 return issubtree(root->left,subRoot) || issubtree(root->right,subRoot)
+这些，但是这里我就生出了一个问题了，如果出现了 false,因为我们是一直递归的，是否会上传给我们的最后结果 来 replace true 呢？ 
+
+回答是“不会，false 不会覆盖掉 true。因为：
+
+我们用的是：
+
+cpp
+Copy
+Edit
+return isSubtree(root->left, subRoot) || isSubtree(root->right, subRoot);
+这是逻辑或 || 运算符，它的行为是：
+
+一旦左边是 true，右边就不会执行（短路）；
+
+只要有一个子树匹配成功，就立即返回 true；
+
+只有当左右子树都返回 false，才返回 false；”
+
+所以是可靠的，我们只用在中间来调用以下实际的另外的一个递归func 来无限递归下去，来验证是否正确，就okk
+来判断一下，  bool isSubtree(TreeNode* root, TreeNode* subRoot) {
+        if (!root) //root不可能走到空
+            return false;
+
+        if (isSameTree(root, subRoot))
+            return true;
+
+        return isSubtree(root->left, subRoot) || isSubtree(root->right, subRoot); //左边为真就不用求右边了，所以是或关系
+    }
+这个func是
+根左右？？还是啥？
+你这个函数的遍历顺序是：“前序遍历 + 剪枝（短路）”
+
+用 || 表达“找到一个匹配就不再继续”
+
+所以它看起来像“递归搜索”，不只是遍历
