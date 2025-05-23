@@ -1,0 +1,21 @@
+// 假设这是一个"包裹"类
+class Package {
+    bool delivered{false};    // 是否已送达
+    Future delivery_status;   // 快递状态（可能还在路上）
+};
+
+Package package1;  // 有个包裹1
+Package package2;  // 有个包裹2
+
+package2 = std::move(package1);  // 把包裹1的所有权转给包裹2
+
+MoveBlocked 的特殊之处：
+auto operator=(MoveBlocked &&that) noexcept -> MoveBlocked & {
+    // 在转移所有权之前，必须等待"包裹送达"
+    if (!that.waited_) {        // 如果还没等待过
+        that.wait_.get();       // 就在这里等！直到 future 完成
+    }
+    that.waited_ = waited_ = true;  // 标记已等待
+    return *this;
+}
+
