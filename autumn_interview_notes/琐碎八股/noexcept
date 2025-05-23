@@ -1,0 +1,26 @@
+1. 关于 noexcept
+cppMoveBlocked(MoveBlocked &&that) noexcept {
+    // ...
+}
+noexcept 的含义：
+
+这是一个承诺，告诉编译器："我保证这个函数不会抛出异常"
+这不是"不一定保证"，而是"我很确定不会抛异常"
+如果你违背承诺（函数还是抛出了异常），程序会直接终止（调用 std::terminate()）
+
+为什么要用 noexcept：
+// 没有 noexcept
+void func1() {
+    // 编译器必须准备处理可能的异常
+}
+
+// 有 noexcept
+void func2() noexcept {
+    // 编译器知道不会有异常，可以优化代码
+}
+
+抛异常 vs 输出错误：
+抛异常：throw std::runtime_error("出错了!"); - 程序流程被打断
+输出错误：std::cerr << "出错了!" << std::endl; - 只是打印信息，程序继续运行
+
+
