@@ -111,4 +111,90 @@ Ctrl+C 是 shell 发送给前台进程组的 SIGINT 信号
 如果库是 -g 编译的，就能看到源码级信息。
 
 ------------------------------------------------------------------------------------------------------------
+✅ 1. 是的，这是真实存在的系统源码文件
+pthread_join_common.c 是 glibc 库中的源文件
+Glibc 是 Linux 上 C 标准库（libc）、线程库（libpthread）的实现者
+你调用 pthread_join()，实际上执行的是 glibc 中的真实 C 函数
+📍 所以你看到的 pthread_join_common.c:145 指的是 glibc 中这个文件第 145 行的代码。
+
+------------------------------------------------------------------------------------------------------------
+🧩 6. set scheduler-locking on — 锁定当前线程
+默认 GDB 会调度多个线程交替执行。
+
+(gdb) set scheduler-locking on
+表示只让当前线程执行，其余全部挂起，适合分析 race condition（竞态）
+
+------------------------------------------------------------------------------------------------------------
+🧩 7. finish — 直接跳出当前函数
+
+(gdb) finish
+跳出当前函数、返回调用者，可以加速调试。
+------------------------------------------------------------------------------------------------------------
+✅ 一、基础调试命令（每个 C/C++ 程序员必会）
+命令	作用
+run / r	启动程序
+break / b	设置断点（函数名、文件:行号）
+continue / c	继续执行到下一个断点
+next / n	单步执行（不进入函数）
+step / s	单步执行（进入函数）
+print x / p x	打印变量 x 的值
+list / l	查看源代码
+quit / q	退出 gdb
+---------------------------------
+✅ 每项重点举例（部分高频技巧）
+✅ watch buffer 监控写入
+
+(gdb) watch buffer
+(gdb) run
+程序一旦修改 buffer（无论哪个线程），立即暂停：
+
+
+Hardware watchpoint 1: buffer
+Old value = 42
+New value = 50
+✅ 条件断点 condition
+
+(gdb) break producer
+(gdb) condition 1 buffer == 88
+只有当 buffer == 88 时才断下，非常适合调试不稳定的竞态值。
+
+✅ info threads + bt
+
+(gdb) info threads
+(gdb) thread 3
+(gdb) bt
+看第 3 个线程是否卡在 sem_wait、死锁、sleep 等地方。
+
+✅ x（examine memory）
+
+(gdb) x/4x &buffer
+查看内存中变量 buffer 的十六进制内容。
+
+✅ 汇编分析：
+
+(gdb) disassemble producer
+查看函数汇编结构，分析优化、指令级行为。
+
+✅ call 注入调用：
+
+(gdb) call printf("X = %d\n", buffer)
+直接运行函数调用调试输出，不改代码。
+
+✅ layout（图形 TUI）
+
+(gdb) layout src
+(gdb) layout asm
+全屏显示源码 + 汇编，适合交互式可视化调试。
+
+-------------------------------------------------------
+初级	断点 + 打印 + 单步	break, run, next, print, quit
+中级	条件 + watch + 多线程	watch, condition, info threads, bt
+高级	汇编、寄存器、patch	disas, x, info reg, set *(...) =
+实战	core dump, 共享库调试	gdb ./a.out core, info sharedlibrary
+自动	.gdbinit, define, source	自动调试脚本、自定义命令
+-----------------------------------------------------------
+
+
+
+
 
