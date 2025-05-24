@@ -193,8 +193,96 @@ New value = 50
 实战	core dump, 共享库调试	gdb ./a.out core, info sharedlibrary
 自动	.gdbinit, define, source	自动调试脚本、自定义命令
 -----------------------------------------------------------
+✅ 1. (gdb) watch buffer 输出含义详解
+你输入了：
 
+(gdb) watch buffer
+然后 GDB 回复：
 
+Hardware watchpoint 1: buffer
+🔍 这是什么意思？
+输出项	含义
+Hardware watchpoint	✅ 表示这是一个硬件级的观察点（CPU 设置断点监视某内存地址）
+1	这是 GDB 分配的 watchpoint 编号（后续可以 delete 1）
+buffer	GDB 将监控这个变量的地址上的数据是否发生变化（被写入）
+
+📌 工作机制：
+当 任何线程尝试写入 buffer 时，GDB 会立刻暂停程序，并打印：
+
+修改前后的值（Old value / New value）
+
+改变它的线程、函数和代码行
+
+✅ watchpoint 非常适合调试共享变量的竞态、数据同步失败、内存污染等问题
+-----------------------------------------------------------------------
+Hardware watchpoint 1: buffer
+Old value = 83
+New value = 90
+producer () at exercise.cpp:13
+
+表示：
+producer 正在把 buffer 改成 90
+GDB 捕捉到这个变化，暂停程序
+----------------------------------------------------------------------------------------------------------------------------------------------
+✅ 2. __GI___clock_nanosleep 和 @entry 含义解释
+你看到的输出是：
+
+Thread 3 ... in __GI___clock_nanosleep(clock_id=..., flags=..., req=..., rem=...) 
+at ../sysdeps/unix/sysv/linux/clock_nanosleep.c:78
+这段输出来自 bt 或 info threads 中，说明 Thread 3 正在执行系统库函数 nanosleep()。
+
+✅ 第一部分：__GI___clock_nanosleep 是什么？
+__clock_nanosleep() 是 glibc 提供的 POSIX 睡眠函数
+
+__GI_ 前缀 = Glibc Internal，表示 GDB 正在调试 glibc 的内联或内部实现
+
+📍 你代码里 sleep(2) 最终会变成对 clock_nanosleep() 的调用。
+
+GDB 在打印函数参数时，有两种参数来源：
+
+表达式	含义
+param=	当前寄存器或栈帧中的值
+param@entry=	函数一开始时传入的参数值（备份）
+➤ 所以你看到：
+
+clock_id=clock_id@entry=0,
+flags=flags@entry=0,
+req=req@entry=0x7ffff759dea0,
+rem=rem@entry=0x7ffff759dea0
+表示：
+调用时传入的原始参数值是 @entry=...
+当前寄存器或函数栈中可能值已经被修改（调试优化的对照）
+
+✅ 第三部分：文件位置和行号
+at ../sysdeps/unix/sysv/linux/clock_nanosleep.c:78
+
+说明：
+
+GDB 当前定位在 Glibc 源码 clock_nanosleep.c 第 78 行
+
+这只有在系统安装了 libc6-dbg 等调试符号包时才能看到
+
+否则你会只看到地址：
+
+__clock_nanosleep() at 0x7ffff7e8023f
+-------------------------------------------------------------------------------------------------------------
+(gdb) bt
+#0  __pthread_clockjoin_ex (threadid=140737351644928, thread_return=0x0, clockid=<optimized out>, abstime=<optimized out>, 
+    block=<optimized out>) at pthread_join_common.c:145
+#1  0x00005555555553bf in main () at exercise.cpp:36
+
+✅ 1. 什么是 bt？
+bt 是 GDB 中的命令，表示 backtrace（回溯调用栈）。
+
+它的作用是：
+
+✅ 打印当前线程从最底层（main）到最顶层（当前执行位置）所有函数的调用顺序。
+✅ 2. bt 显示了什么？
+每一行就是一层调用栈，表示：
+
+某个函数被谁调用、传了什么参数、在哪个文件、哪一行。
+
+-------------------------------------------------------------------------------------------------------------
 
 
 
