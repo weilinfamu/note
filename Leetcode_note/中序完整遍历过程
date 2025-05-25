@@ -1,0 +1,57 @@
+class Solution {
+public:
+    long long maxVal = LONG_MIN;
+    bool isValidBST(TreeNode* root) {
+        if (root == NULL) return true;
+
+        bool left = isValidBST(root->left);
+
+        if (maxVal < root->val) maxVal = root->val;
+        else return false;
+
+        bool right = isValidBST(root->right);
+
+        return left && right;
+    }
+};
+
+
+
+✅ 完整递归调用图（中序遍历 + 访问顺序 + 根标注）
+       10
+      /  \
+     5    15
+    / \     \
+   2   7     20
+
+✅ 完整递归调用图（中序遍历 + 访问顺序 + 根标注）
+
+isValidBST(10)
+├── isValidBST(5)
+│   ├── isValidBST(2)
+│   │   ├── isValidBST(NULL)  // 左空
+│   │   ├── root=2            // ← 第一个被访问节点
+│   │   └── isValidBST(NULL)  // 右空
+│   ├── root=5
+│   └── isValidBST(7)
+│       ├── isValidBST(NULL)
+│       ├── root=7
+│       └── isValidBST(NULL)
+├── root=10
+└── isValidBST(15)
+    ├── isValidBST(NULL)      // ← 左子树为空
+    ├── root=15               // ← 你提到的这一步！✅
+    └── isValidBST(20)
+        ├── isValidBST(NULL)
+        ├── root=20
+        └── isValidBST(NULL)
+
+
+
+
+
+
+
+
+
+
