@@ -1,0 +1,23 @@
+✅ 举个例子：GDB 中栈帧展开
+你运行这段代码：
+
+int main() {
+    TreeNode* root = buildTestTree();
+    Solution sol;
+    TreeNode* result = sol.searchBST(root, 7);
+    return 0;
+}
+
+
+------------------------------------------------------------------------------------
+会得到如下的函数栈结构（GDB 的 backtrace 或 bt 命令看到的）：
+#0  searchBST(TreeNode* root=7, val=7)
+#1  searchBST(TreeNode* root=5, val=7)
+#2  searchBST(TreeNode* root=10, val=7)
+#3  main()
+
+------------------------------------------------------------------------------------
+也就是说先压的在最后面...
+一步一步向上
+
+
