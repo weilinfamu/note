@@ -1,4 +1,16 @@
 CMake 是必须掌握的！
+
+
+✅ 模块化工程组织（嵌入式常用）
+结构：
+project/
+├── CMakeLists.txt         ← 主 CMake
+├── src/
+│   ├── CMakeLists.txt     ← 编译 app 逻辑
+├── lib/
+│   └── HAL/
+│       ├── hal.c
+│       └── CMakeLists.txt ← 编译 HAL 模块逻辑
 ------------------------------------------------------------------------------------
 尤其在大型工程、嵌入式开发、多平台移植、工程模块化这些场景，CMake 是“工程管理的核心”。
 ------------------------------------------------------------------------------------
@@ -49,13 +61,105 @@ GLOB	        表示使用通配符来查找文件
 SRC	        📌 变量名，你自定义的，用于接收文件列表（不是目录）
 *.cpp	        当前 CMakeLists.txt 所在目录下，所有 .cpp 文件
 ------------------------------------------------------------------------------------
+📌 举例说明：
+假设你在目录 src/ 里面写了：
 
+file(GLOB SRC *.cpp)
 
+如果 src/ 中有这些文件：
+src/
+├── main.cpp
+├── foo.cpp
 
+那这句命令之后：
+SRC = main.cpp foo.cpp
+你后面可以写：
+add_executable(myApp ${SRC})
+这就等价于：
+add_executable(myApp main.cpp foo.cpp)
 
+file(GLOB SRC *.cpp) 的 SRC 是变量，代表“当前目录下所有 .cpp 文件的路径”，不是目录名本身。
 
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+✅ 更专业写法（自动包含当前目录下所有 .cpp 文件）
 
+file(GLOB SRC *.cpp)
+add_executable(myApp ${SRC})
 
+部分	      含义
+file(...)	  CMake 的文件操作命令
+GLOB	      通配符查找文件
+SRC	        变量名，存储搜索到的文件列表
+*.cpp	      当前目录下所有 .cpp 文件
+
+📌 SRC 最终就是 main.cpp foo.cpp 这样的列表
+
+add_executable(myApp ${SRC})
+
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+✅ 包含头文件路径（找 .h 文件）
+target_include_directories(myApp PRIVATE ${CMAKE_SOURCE_DIR}/include)
+
+    部分	                                含义
+target_include_directories	给某个目标程序（如 myApp）添加头文件路径
+      myApp	                                指的是哪个目标
+PRIVATE	                      表示只有这个 target 自己用（常见还有 PUBLIC、INTERFACE）
+${CMAKE_SOURCE_DIR}/include	        路径：项目根目录下的 include/ 目录
+📌 如果你的 .h 文件不和 .cpp 在一起，就得指定这个路径。
+
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+
+✅ 链接外部库（例如 HAL、FreeRTOS、OpenCV 等）
+add_library(HAL STATIC ${SRC_HAL})
+target_link_libraries(myApp HAL)
+
+外部系统库的版本（比如 OpenCV）
+find_package(OpenCV REQUIRED)
+target_link_libraries(myApp ${OpenCV_LIBS})
+
+find_package(...)：查找系统里安装的 OpenCV
+OpenCV_LIBS：变量，包含所有需要链接的 lib 路径
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+// ✅ 示例目录结构
+// project/
+// ├── CMakeLists.txt
+// ├── main.cpp
+// ├── foo.cpp
+// └── foo.h
+
+// --- main.cpp ---
+#include "foo.h"
+#include <iostream>
+
+int main() {
+    std::cout << "Result: " << add(3, 5) << std::endl;
+    return 0;
+}
+
+// --- foo.cpp ---
+#include "foo.h"
+int add(int a, int b) {
+    return a + b;
+}
+
+// --- foo.h ---
+#ifndef FOO_H
+#define FOO_H
+int add(int a, int b);
+#endif
+
+// --- CMakeLists.txt ---
+cmake_minimum_required(VERSION 3.10)
+project(MyApp)
+
+file(GLOB SRC *.cpp)  # 自动获取当前目录下所有 cpp 文件
+add_executable(myApp ${SRC})
 
 
 
