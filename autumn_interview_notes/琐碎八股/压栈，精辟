@@ -34,3 +34,26 @@ int main() {
 🧠 所以递归的本质：
 “一层层调用压栈直到触底，然后一层层返回弹栈（这就是回溯）”
 
+------------------------------------------------------------------------------------
+
+#0  searchBST(root=7, val=7)
+    └── return root(7); // root->val == val，命中
+         ↑
+         没有再递归，直接返回节点 TreeNode(7)
+
+#1  searchBST(root=5, val=7)
+    └── root->val < 7 → 走右子树：
+        result = searchBST(7, 7);  // 调用下一层
+        ← result 接收到 TreeNode(7)
+    └── return result (TreeNode(7))
+
+#2  searchBST(root=10, val=7)
+    └── root->val > 7 → 走左子树：
+        result = searchBST(5, 7);  // 调用下一层
+        ← result 接收到 TreeNode(7)
+    └── return result (TreeNode(7))
+
+#3  main()
+    └── result = searchBST(10, 7);
+        ← result 得到 TreeNode(7)
+
