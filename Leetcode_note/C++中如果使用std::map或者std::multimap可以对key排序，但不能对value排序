@@ -39,3 +39,26 @@ map.begin() 和 map.end() 是迭代器
 所以你可以直接拿来创建一个 vector<pair<int, int>>，编译器会自动去掉 const 做复制
 
 ------------------------------------------------------------------------------------------------------------
+代码如下：
+
+bool static cmp (const pair<int, int>& a, const pair<int, int>& b) {
+    return a.second > b.second; // 按照频率从大到小排序
+}
+
+vector<pair<int, int>> vec(map.begin(), map.end());
+sort(vec.begin(), vec.end(), cmp); // 给频率排个序
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
