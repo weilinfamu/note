@@ -1,0 +1,41 @@
+// map<int, int> key:元素，value:出现频率
+void searchBST(TreeNode* cur, unordered_map<int, int>& map) { // 前序遍历
+    if (cur == NULL) return ;
+    map[cur->val]++; // 统计元素频率
+    searchBST(cur->left, map);
+    searchBST(cur->right, map);
+    return ;
+}
+
+------------------------------------------------------------------------------------------------------------
+把统计的出来的出现频率（即map中的value）排个序
+有的同学可能可以想直接对map中的value排序，还真做不到，C++中如果使用std::map或者std::multimap可以对key排序，但不能对value排序。
+
+所以要把map转化数组即vector，再进行排序，当然vector里面放的也是pair<int, int>类型的数据，第一个int为元素，第二个int为出现频率。
+
+✅ 一、map 的底层其实就是很多个 pair<key, value>
+当你写下：
+
+unordered_map<int, int> map;
+它的内部结构就是：
+
+
+{
+    {3, 2},   // key=3 出现2次
+    {7, 1},   // key=7 出现1次
+    {1, 5}    // key=1 出现5次
+}
+每一个元素就是一个：std::pair<int, int>
+也就是：std::pair<key, value>
+✅ 二、如何从 map 转成 vector？
+你可以直接构造：
+
+
+vector<pair<int, int>> vec(map.begin(), map.end());
+map.begin() 和 map.end() 是迭代器
+
+每次迭代返回的是：pair<const int, int>
+
+所以你可以直接拿来创建一个 vector<pair<int, int>>，编译器会自动去掉 const 做复制
+
+------------------------------------------------------------------------------------------------------------
