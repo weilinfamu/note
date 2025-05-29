@@ -1,0 +1,51 @@
+非常好的追问！这个问题是理解 递归函数 return 机制 的关键，来，我们分情况讲清楚：
+
+✅ 一、void 返回类型时
+
+void dfs(TreeNode* root) {
+    if (root == NULL) return; // 提前退出
+    // ...
+    return; // ✅ 可写可不写（自动 return 到上一层）
+}
+✔ 没有返回值，return; 只是 控制流程提前退出函数
+✔ 函数末尾没有 return; 也没关系
+
+✅ 二、返回值是 TreeNode* 时（或其它非-void）
+
+TreeNode* dfs(TreeNode* root) {
+    if (root == NULL) return NULL;  // ✅ 必须返回一个 TreeNode*
+    
+    // ...
+    return root;  // ✅ 必须有返回值（非 void）
+}
+❗ 结论：
+TreeNode* 函数返回值，必须每个路径 都有明确 return 一个 TreeNode*
+
+否则会编译错误：“control reaches end of non-void function”
+
+🚨 错误示例（编译不通过）：
+
+TreeNode* dfs(TreeNode* root) {
+    if (root == NULL) return NULL;
+    // 忘记写 return，函数结束了……
+}  // ❌ error: control reaches end of non-void function
+✅ 示例总结对比：
+返回类型	if(...) return; 必须？	最后一行 return 必须？
+void	❌ 非必须	❌ 非必须（隐式返回）
+TreeNode*	✅ 必须返回值	✅ 必须返回值
+int / bool	✅ 同上	✅ 同上
+
+✅ 举个真实例子：
+
+TreeNode* findNode(TreeNode* root, int val) {
+    if (root == NULL) return NULL;
+    if (root->val == val) return root;
+
+    TreeNode* left = findNode(root->left, val);
+    if (left) return left;
+    TreeNode* right = findNode(root->right, val);
+    return right; // ✅ 一定要 return 一个指针
+}
+🧠 一句话记忆：
+void 可以什么都不 return，但 非-void 的函数每个路径必须 return 一个值，否则编译不过。
+
