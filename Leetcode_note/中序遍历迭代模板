@@ -1,0 +1,30 @@
+中序遍历迭代模板还是要记住：
+
+class Solution {
+public:
+    int getMinimumDifference(TreeNode* root) {
+       stack<TreeNode*>stk;
+//cur pre 这些还是自己要记住
+       TreeNode* cur = root;
+       TreeNode* pre = NULL;
+       int res = INT_MAX;
+       //一般情况下 cur != NULL, stk.empty() 也是 条件
+       while(cur != NULL || !stk.empty()){
+        //中序遍历  左 根 右
+        if(cur != NULL){
+            stk.push(cur);
+            cur = cur->left; //先一直 像链表一样遍历完成，注意由于 栈的 特性，我在这里实际上是不断的获取到的是最新，最上层的一个elements
+
+        }
+        else{
+             cur = stk.top();stk.pop(); //这里就是根了， 处理..
+             if(pre){res = min(res,cur->val - pre->val);}
+             pre = cur;
+  //这里右一定不要忘记
+             cur = cur->right;
+        }
+
+       }
+       return res;
+    }
+};
